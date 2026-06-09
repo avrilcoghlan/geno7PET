@@ -1,0 +1,25 @@
+[project]
+name = "Geno7PET"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.9"
+dependencies = []
+
+[project.scripts]
+Geno7PET = "geno7pet.geno7PET:main"
+
+[build-system]
+requires = ["hatchling>=1.25", "wheel"]
+build-backend = "hatchling.build"
+
+[tool.pixi.workspace]
+channels = ["conda-forge", "bioconda"]
+platforms = ["linux-64"]
+
+[tool.pixi.pypi-dependencies]
+Geno7PET = { path = ".", editable = true }
+
+[tool.pixi.tasks]
+
+[tool.pixi.dependencies]
+blast = ">=2.17.0,<3"
