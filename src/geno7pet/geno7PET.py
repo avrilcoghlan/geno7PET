@@ -433,7 +433,7 @@ def compare_classifications_to_tree(initial_classifications_for_isolate, input_a
 
     # if there are not any classifications left in 'current_classifications_set', then add wave 1:                  
     if len(current_classifications_set) == 0:
-        classification1 = 'wave1_1.0_0.0'
+        classification1 = '1.0'
         current_classifications_set.add(classification1)
         result = 'fine'
     else:
