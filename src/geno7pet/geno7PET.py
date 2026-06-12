@@ -1,17 +1,17 @@
 # MIT License
-#
+# 
 # Copyright (c) 2025 Avril Coghlan
-#
+# 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-#
+# 
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
-#
+# 
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -23,15 +23,12 @@
 #====================================================================#
 # VERSION 1.0.1, 14th-Oct-2025.
 #====================================================================#
-import shutil
+
+import time
 import os
 import sys
 import random
 from collections import defaultdict
-from importlib import resources
-from pathlib import Path
-import argparse
-
 
 #====================================================================#
 # define a function to make a file name for a temporary file
@@ -74,7 +71,7 @@ def check_if_SNP_in_isolate(snp, alleles_found_set, input_assembly_file, clade, 
     if give_verbose_output == 'yes':
         print("clade=",clade,"snp=",snp,"alt",is_alternative_allele_found,"wt",is_wildtype_allele_found)
 
-    return is_alternative_allele_found
+    return is_alternative_allele_found 
 
 #====================================================================#
 # define subroutine to read in the SNPs to use to classify in a particular clade:
@@ -84,7 +81,7 @@ def read_input_snps_to_use_for_classifying_clade(file_with_snps_for_clade, clade
     # read in the input file of SNPs to use to classify in the clade 'clade':
     fileObj = open(file_with_snps_for_clade)
     total_number_snps_for_clade = 0
-    number_snps_for_clade_found = 0
+    number_snps_for_clade_found = 0 
     for line in fileObj:
         # "AE003852_760185" 0.948913402470011
         # "AE003852_1709267" 0.949646833368501
@@ -98,13 +95,13 @@ def read_input_snps_to_use_for_classifying_clade(file_with_snps_for_clade, clade
            # check if the FST score is >= fst_cutoff_for_clade:
            if fst >= fst_cutoff_for_clade:
                total_number_snps_for_clade = total_number_snps_for_clade + 1
-               # check if the SNP was found in the isolate:
-               is_snp_found = check_if_SNP_in_isolate(snp, alleles_found_set, input_assembly_file, clade, give_verbose_output)
-               if is_snp_found:
+               # check if the SNP was found in the isolate: 
+               is_snp_found = check_if_SNP_in_isolate(snp, alleles_found_set, input_assembly_file, clade, give_verbose_output) 
+               if is_snp_found == True:
                    format_string = "clade %s - FOUND snp %s FST %f" % (clade, snp, fst)
                    number_snps_for_clade_found = number_snps_for_clade_found + 1
                else:
-                   format_string = "clade %s - missing snp %s FST %f" % (clade, snp, fst)
+                   format_string = "clade %s - missing snp %s FST %f" % (clade, snp, fst) 
     fileObj.close()
 
     # calculate the number of SNPs for this clade that were found:
@@ -113,7 +110,7 @@ def read_input_snps_to_use_for_classifying_clade(file_with_snps_for_clade, clade
         format_string = "FINDING SNPS:__________clade %s - percent SNPs found %f" % (clade, percent_snps_for_clade_found)
         if give_verbose_output == 'yes':
             print(format_string)
-        if percent_snps_for_clade_found >= 50.0:
+        if percent_snps_for_clade_found >= 50.0: 
             clade2 = "%s_%f" % (clade,percent_snps_for_clade_found)
             classifications_for_isolate.append(clade2)
     else:
@@ -229,10 +226,10 @@ def get_descendants(mynode, parents_dict, children_dict):
             childrenstring = children_dict[mynode]
             children = childrenstring.split(',')
             for child in children:
-                # Get the first member of each tuple, see
-                # http://stackoverflow.com/questions/12142133/how-to-get-first-element-in-a-list-of-tuples
+                # Get the first member of each tuple, see 
+                # http://stackoverflow.com/questions/12142133/how-to-get-first-element-in-a-list-of-tuples    
                 myqueue_members = [x[0] for x in myqueue]
-                if child not in myresult and child not in myqueue_members: # Don't visit a second time
+                if child not in myresult and child not in myqueue_members: # Don't visit a second time 
                     myqueue.append( (child, mydist+1) )
                 # Add node 'child' to the descendants list:
                 descendants.append(child)
@@ -271,13 +268,13 @@ def find_most_precise_classification(classifications_set):
     return most_precise_classification
 
 #====================================================================#
-# define subroutine to make sure that at each level, we have some member of the classification tree selected:
+# define subroutine to make sure that at each level, we have some member of the classification tree selected: 
 
 def check_have_classification_at_each_level(classifications_set, parents_dict):
     """ make sure that at each level we have some member of the tree selected.
-    >>> check_have_classification_at_each_level({'3.1.1.1', '3.1.1', '3.1', '1.1'}, {'1.0': 'root', '1.1': 'root', '2.0': '1.1', '3.1': '1.1', '3.1.0': '3.1', '3.1.1': '3.1', '3.1.2': '3.1', '3.1.3': '3.1', '3.1.4': '3.1', '3.1.5': '3.1', '3.1.1.0': '3.1.1', '3.1.1.1': '3.1.1', '3.1.1.2': '3.1.1', '3.1.1.3': '3.1.1', '3.1.1.3': '3.1.1', '3.1.1.4': '3.1.1', '3.1.1.5': '3.1.1', '3.1.2.0': '3.1.2', '3.1.2.1': '3.1.2', '3.1.2.2': '3.1.2', '3.1.1.2.0': '3.1.1.2', '3.1.1.2.1': '3.1.1.2', '3.1.2.1.0': '3.1.2.1', '3.1.2.1.1': '3.1.2.1', '3.1.2.1.1.0': '3.1.2.1.1', '3.1.2.1.1.1': '3.1.2.1.1'})
+    >>> check_have_classification_at_each_level({'3.1.1.1', '3.1.1', '3.1', '1.1'}, {'1.0': 'root', '1.1': 'root', '2.0': '1.1', '3.1': '1.1', '3.1.0': '3.1', '3.1.1': '3.1', '3.1.2': '3.1', '3.1.3': '3.1', '3.1.4': '3.1', '3.1.5': '3.1', '3.1.1.0': '3.1.1', '3.1.1.1': '3.1.1', '3.1.1.2': '3.1.1', '3.1.1.3': '3.1.1', '3.1.1.3': '3.1.1', '3.1.1.4': '3.1.1', '3.1.1.5': '3.1.1', '3.1.2.0': '3.1.2', '3.1.2.1': '3.1.2', '3.1.2.2': '3.1.2', '3.1.1.2.0': '3.1.1.2', '3.1.1.2.1': '3.1.1.2', '3.1.2.1.0': '3.1.2.1', '3.1.2.1.1': '3.1.2.1', '3.1.2.1.1.0': '3.1.2.1.1', '3.1.2.1.1.1': '3.1.2.1.1'}) 
     'fine'
-    >>> check_have_classification_at_each_level({'3.1.1.1', '3.1', '1.1'}, {'1.0': 'root', '1.1': 'root', '2.0': '1.1', '3.1': '1.1', '3.1.0': '3.1', '3.1.1': '3.1', '3.1.2': '3.1', '3.1.3': '3.1', '3.1.4': '3.1', '3.1.5': '3.1', '3.1.1.0': '3.1.1', '3.1.1.1': '3.1.1', '3.1.1.2': '3.1.1', '3.1.1.3': '3.1.1', '3.1.1.3': '3.1.1', '3.1.1.4': '3.1.1', '3.1.1.5': '3.1.1', '3.1.2.0': '3.1.2', '3.1.2.1': '3.1.2', '3.1.2.2': '3.1.2', '3.1.1.2.0': '3.1.1.2', '3.1.1.2.1': '3.1.1.2', '3.1.2.1.0': '3.1.2.1', '3.1.2.1.1': '3.1.2.1', '3.1.2.1.1.0': '3.1.2.1.1', '3.1.2.1.1.1': '3.1.2.1.1'})
+    >>> check_have_classification_at_each_level({'3.1.1.1', '3.1', '1.1'}, {'1.0': 'root', '1.1': 'root', '2.0': '1.1', '3.1': '1.1', '3.1.0': '3.1', '3.1.1': '3.1', '3.1.2': '3.1', '3.1.3': '3.1', '3.1.4': '3.1', '3.1.5': '3.1', '3.1.1.0': '3.1.1', '3.1.1.1': '3.1.1', '3.1.1.2': '3.1.1', '3.1.1.3': '3.1.1', '3.1.1.3': '3.1.1', '3.1.1.4': '3.1.1', '3.1.1.5': '3.1.1', '3.1.2.0': '3.1.2', '3.1.2.1': '3.1.2', '3.1.2.2': '3.1.2', '3.1.1.2.0': '3.1.1.2', '3.1.1.2.1': '3.1.1.2', '3.1.2.1.0': '3.1.2.1', '3.1.2.1.1': '3.1.2.1', '3.1.2.1.1.0': '3.1.2.1.1', '3.1.2.1.1.1': '3.1.2.1.1'}) 
     'warning'
     """
 
@@ -287,7 +284,7 @@ def check_have_classification_at_each_level(classifications_set, parents_dict):
     # start at the most precise classification, and then work upwards towards the root node:
     most_precise_classification = find_most_precise_classification(classifications_set)
     node = most_precise_classification
-    while node != 'root':
+    while node != 'root':      
         assert(node in parents_dict)
         parent = parents_dict[node]
         if parent not in classifications_set:
@@ -310,7 +307,7 @@ def get_catchall_child_node(node, children_dict):
     '1.0'
     """
 
-    catchall_child_node = None
+    catchall_child_node = None 
     assert(node in children_dict)
     childrenstring = children_dict[node]
     children = childrenstring.split(',')
@@ -318,9 +315,9 @@ def get_catchall_child_node(node, children_dict):
         temp = child.split('.')
         last_number = temp[-1]
         if last_number == '0':
-            assert(catchall_child_node is None)
+            assert(catchall_child_node == None)
             catchall_child_node = child
-    assert(catchall_child_node is not None)
+    assert(catchall_child_node != None)
 
     return catchall_child_node
 
@@ -330,19 +327,19 @@ def get_catchall_child_node(node, children_dict):
 
 def assign_to_catchallnodes(current_classifications_set, children_dict, parents_dict):
     """traverse the tree in a breadth-first search from the root downwards, and if there is no classification at a certain level then classify to a .0 node at that level:
-    >>> assign_to_catchallnodes({'1.1', '3.1'}, {'root': '1.0,1.1', '1.1': '2.0,3.1', '3.1': '3.1.0,3.1.1,3.1.2,3.1.3,3.1.4,3.1.5', '3.1.1': '3.1.1.0,3.1.1.1,3.1.1.2,3.1.1.3,3.1.1.4,3.1.1.5', '3.1.2': '3.1.2.0,3.1.2.1,3.1.2.2', '3.1.1.2': '3.1.1.2.0,3.1.1.2.1', '3.1.2.1': '3.1.2.1.0,3.1.2.1.1', '3.1.2.1.1': '3.1.2.1.1.0,3.1.2.1.1.1'}, {'1.0': 'root', '1.1': 'root', '2.0': '1.1', '3.1': '1.1', '3.1.0': '3.1', '3.1.1': '3.1', '3.1.2': '3.1', '3.1.3': '3.1', '3.1.4': '3.1', '3.1.5': '3.1', '3.1.1.0': '3.1.1', '3.1.1.1': '3.1.1', '3.1.1.2': '3.1.1', '3.1.1.3': '3.1.1', '3.1.1.3': '3.1.1', '3.1.1.4': '3.1.1', '3.1.1.5': '3.1.1', '3.1.2.0': '3.1.2', '3.1.2.1': '3.1.2', '3.1.2.2': '3.1.2', '3.1.1.2.0': '3.1.1.2', '3.1.1.2.1': '3.1.1.2', '3.1.2.1.0': '3.1.2.1', '3.1.2.1.1': '3.1.2.1', '3.1.2.1.1.0': '3.1.2.1.1', '3.1.2.1.1.1': '3.1.2.1.1'})
+    >>> assign_to_catchallnodes({'1.1', '3.1'}, {'root': '1.0,1.1', '1.1': '2.0,3.1', '3.1': '3.1.0,3.1.1,3.1.2,3.1.3,3.1.4,3.1.5', '3.1.1': '3.1.1.0,3.1.1.1,3.1.1.2,3.1.1.3,3.1.1.4,3.1.1.5', '3.1.2': '3.1.2.0,3.1.2.1,3.1.2.2', '3.1.1.2': '3.1.1.2.0,3.1.1.2.1', '3.1.2.1': '3.1.2.1.0,3.1.2.1.1', '3.1.2.1.1': '3.1.2.1.1.0,3.1.2.1.1.1'}, {'1.0': 'root', '1.1': 'root', '2.0': '1.1', '3.1': '1.1', '3.1.0': '3.1', '3.1.1': '3.1', '3.1.2': '3.1', '3.1.3': '3.1', '3.1.4': '3.1', '3.1.5': '3.1', '3.1.1.0': '3.1.1', '3.1.1.1': '3.1.1', '3.1.1.2': '3.1.1', '3.1.1.3': '3.1.1', '3.1.1.3': '3.1.1', '3.1.1.4': '3.1.1', '3.1.1.5': '3.1.1', '3.1.2.0': '3.1.2', '3.1.2.1': '3.1.2', '3.1.2.2': '3.1.2', '3.1.1.2.0': '3.1.1.2', '3.1.1.2.1': '3.1.1.2', '3.1.2.1.0': '3.1.2.1', '3.1.2.1.1': '3.1.2.1', '3.1.2.1.1.0': '3.1.2.1.1', '3.1.2.1.1.1': '3.1.2.1.1'}) 
     ['1.1', '3.1', '3.1.0']
-    >>> assign_to_catchallnodes(set(), {'root': '1.0,1.1', '1.1': '2.0,3.1', '3.1': '3.1.0,3.1.1,3.1.2,3.1.3,3.1.4,3.1.5', '3.1.1': '3.1.1.0,3.1.1.1,3.1.1.2,3.1.1.3,3.1.1.4,3.1.1.5', '3.1.2': '3.1.2.0,3.1.2.1,3.1.2.2', '3.1.1.2': '3.1.1.2.0,3.1.1.2.1', '3.1.2.1': '3.1.2.1.0,3.1.2.1.1', '3.1.2.1.1': '3.1.2.1.1.0,3.1.2.1.1.1'}, {'1.0': 'root', '1.1': 'root', '2.0': '1.1', '3.1': '1.1', '3.1.0': '3.1', '3.1.1': '3.1', '3.1.2': '3.1', '3.1.3': '3.1', '3.1.4': '3.1', '3.1.5': '3.1', '3.1.1.0': '3.1.1', '3.1.1.1': '3.1.1', '3.1.1.2': '3.1.1', '3.1.1.3': '3.1.1', '3.1.1.3': '3.1.1', '3.1.1.4': '3.1.1', '3.1.1.5': '3.1.1', '3.1.2.0': '3.1.2', '3.1.2.1': '3.1.2', '3.1.2.2': '3.1.2', '3.1.1.2.0': '3.1.1.2', '3.1.1.2.1': '3.1.1.2', '3.1.2.1.0': '3.1.2.1', '3.1.2.1.1': '3.1.2.1', '3.1.2.1.1.0': '3.1.2.1.1', '3.1.2.1.1.1': '3.1.2.1.1'})
+    >>> assign_to_catchallnodes(set(), {'root': '1.0,1.1', '1.1': '2.0,3.1', '3.1': '3.1.0,3.1.1,3.1.2,3.1.3,3.1.4,3.1.5', '3.1.1': '3.1.1.0,3.1.1.1,3.1.1.2,3.1.1.3,3.1.1.4,3.1.1.5', '3.1.2': '3.1.2.0,3.1.2.1,3.1.2.2', '3.1.1.2': '3.1.1.2.0,3.1.1.2.1', '3.1.2.1': '3.1.2.1.0,3.1.2.1.1', '3.1.2.1.1': '3.1.2.1.1.0,3.1.2.1.1.1'}, {'1.0': 'root', '1.1': 'root', '2.0': '1.1', '3.1': '1.1', '3.1.0': '3.1', '3.1.1': '3.1', '3.1.2': '3.1', '3.1.3': '3.1', '3.1.4': '3.1', '3.1.5': '3.1', '3.1.1.0': '3.1.1', '3.1.1.1': '3.1.1', '3.1.1.2': '3.1.1', '3.1.1.3': '3.1.1', '3.1.1.3': '3.1.1', '3.1.1.4': '3.1.1', '3.1.1.5': '3.1.1', '3.1.2.0': '3.1.2', '3.1.2.1': '3.1.2', '3.1.2.2': '3.1.2', '3.1.1.2.0': '3.1.1.2', '3.1.1.2.1': '3.1.1.2', '3.1.2.1.0': '3.1.2.1', '3.1.2.1.1': '3.1.2.1', '3.1.2.1.1.0': '3.1.2.1.1', '3.1.2.1.1.1': '3.1.2.1.1'}) 
     ['1.0']
-    >>> assign_to_catchallnodes({'1.1'}, {'root': '1.0,1.1', '1.1': '2.0,3.1', '3.1': '3.1.0,3.1.1,3.1.2,3.1.3,3.1.4,3.1.5', '3.1.1': '3.1.1.0,3.1.1.1,3.1.1.2,3.1.1.3,3.1.1.4,3.1.1.5', '3.1.2': '3.1.2.0,3.1.2.1,3.1.2.2', '3.1.1.2': '3.1.1.2.0,3.1.1.2.1', '3.1.2.1': '3.1.2.1.0,3.1.2.1.1', '3.1.2.1.1': '3.1.2.1.1.0,3.1.2.1.1.1'}, {'1.0': 'root', '1.1': 'root', '2.0': '1.1', '3.1': '1.1', '3.1.0': '3.1', '3.1.1': '3.1', '3.1.2': '3.1', '3.1.3': '3.1', '3.1.4': '3.1', '3.1.5': '3.1', '3.1.1.0': '3.1.1', '3.1.1.1': '3.1.1', '3.1.1.2': '3.1.1', '3.1.1.3': '3.1.1', '3.1.1.3': '3.1.1', '3.1.1.4': '3.1.1', '3.1.1.5': '3.1.1', '3.1.2.0': '3.1.2', '3.1.2.1': '3.1.2', '3.1.2.2': '3.1.2', '3.1.1.2.0': '3.1.1.2', '3.1.1.2.1': '3.1.1.2', '3.1.2.1.0': '3.1.2.1', '3.1.2.1.1': '3.1.2.1', '3.1.2.1.1.0': '3.1.2.1.1', '3.1.2.1.1.1': '3.1.2.1.1'})
+    >>> assign_to_catchallnodes({'1.1'}, {'root': '1.0,1.1', '1.1': '2.0,3.1', '3.1': '3.1.0,3.1.1,3.1.2,3.1.3,3.1.4,3.1.5', '3.1.1': '3.1.1.0,3.1.1.1,3.1.1.2,3.1.1.3,3.1.1.4,3.1.1.5', '3.1.2': '3.1.2.0,3.1.2.1,3.1.2.2', '3.1.1.2': '3.1.1.2.0,3.1.1.2.1', '3.1.2.1': '3.1.2.1.0,3.1.2.1.1', '3.1.2.1.1': '3.1.2.1.1.0,3.1.2.1.1.1'}, {'1.0': 'root', '1.1': 'root', '2.0': '1.1', '3.1': '1.1', '3.1.0': '3.1', '3.1.1': '3.1', '3.1.2': '3.1', '3.1.3': '3.1', '3.1.4': '3.1', '3.1.5': '3.1', '3.1.1.0': '3.1.1', '3.1.1.1': '3.1.1', '3.1.1.2': '3.1.1', '3.1.1.3': '3.1.1', '3.1.1.3': '3.1.1', '3.1.1.4': '3.1.1', '3.1.1.5': '3.1.1', '3.1.2.0': '3.1.2', '3.1.2.1': '3.1.2', '3.1.2.2': '3.1.2', '3.1.1.2.0': '3.1.1.2', '3.1.1.2.1': '3.1.1.2', '3.1.2.1.0': '3.1.2.1', '3.1.2.1.1': '3.1.2.1', '3.1.2.1.1.0': '3.1.2.1.1', '3.1.2.1.1.1': '3.1.2.1.1'}) 
     ['1.1', '2.0']
     """
-
+   
     queue = []
     result_dict = {}
     queue.append( ('root', 0) )
     while queue:
-        node, dist = queue.pop(0) # Take the first item off the list 'queue' (and remove it)
+        node, dist = queue.pop(0) # Take the first item off the list 'queue' (and remove it)  
         result_dict[node] = dist
         if node in children_dict: # If the node *has* children
             childrenstring = children_dict[node]
@@ -350,10 +347,10 @@ def assign_to_catchallnodes(current_classifications_set, children_dict, parents_
             # check if at least one child of node 'node' is in current_classifications_set
             have_child_in_classifications_set = False
             for child in children:
-                # Get the first member of each tuple, see
+                # Get the first member of each tuple, see 
                 # http://stackoverflow.com/questions/12142133/how-to-get-first-element-in-a-list-of-tuples
                 queue_members = [x[0] for x in queue]
-                if child not in result_dict and child not in queue_members: # Don't visit a second time
+                if child not in result_dict and child not in queue_members: # Don't visit a second time 
                     queue.append( (child, dist+1) )
                     # If node 'child' is in the current classification set:
                     if child in current_classifications_set:
@@ -361,13 +358,13 @@ def assign_to_catchallnodes(current_classifications_set, children_dict, parents_
             # Check if the node 'node' is in the current classifications set (or is the root node) and
             # we don't have any children of the node 'node' in the current classifications set:
             if node in current_classifications_set or node == 'root':
-                if not have_child_in_classifications_set:
+                if have_child_in_classifications_set == False:
                     # need to figure out what is the child node of 'node' that is a 'catchall' node:
                     catchall_child_node = get_catchall_child_node(node, children_dict)
                     current_classifications_set.add(catchall_child_node)
 
     current_classifications_list = sorted(list(current_classifications_set))
-
+  
     return current_classifications_list
 
 #====================================================================#
@@ -389,16 +386,16 @@ def prune_classification_set(current_classifications_set, children_dict, parents
     result_dict = {}
     queue.append( ('root', 0) )
     while queue:
-        node, dist = queue.pop(0) # Take the first item off the list 'queue' (and remove it)
+        node, dist = queue.pop(0) # Take the first item off the list 'queue' (and remove it)   
         result_dict[node] = dist
         if node in children_dict: # If the node *has* children
             childrenstring = children_dict[node]
             children = childrenstring.split(',')
             for child in children:
-                # Get the first member of each tuple, see
-                # http://stackoverflow.com/questions/12142133/how-to-get-first-element-in-a-list-of-tuples
+                # Get the first member of each tuple, see 
+                # http://stackoverflow.com/questions/12142133/how-to-get-first-element-in-a-list-of-tuples   
                 queue_members = [x[0] for x in queue]
-                if child not in result_dict and child not in queue_members: # Don't visit a second time
+                if child not in result_dict and child not in queue_members: # Don't visit a second time 
                     queue.append( (child, dist+1) )
                     #----------------------------------------------------------------#
                     # If node 'child' is in the current classification set:
@@ -434,7 +431,7 @@ def compare_classifications_to_tree(initial_classifications_for_isolate, input_a
         classification1 = temp[1] # e.g. 2and3, 3, 3.2, 3.2.1, etc.
         current_classifications_set.add(classification1)
 
-    # if there are not any classifications left in 'current_classifications_set', then add wave 1:
+    # if there are not any classifications left in 'current_classifications_set', then add wave 1:                  
     if len(current_classifications_set) == 0:
         classification1 = 'wave1_1.0_0.0'
         current_classifications_set.add(classification1)
@@ -457,34 +454,34 @@ def compare_classifications_to_tree(initial_classifications_for_isolate, input_a
         # now traverse the tree in a breadth-first search from the root downwards:
         # if there is no classification at a certain level, then classify to .0 at that level
         current_classifications_list = assign_to_catchallnodes(current_classifications_set, children_dict, parents_dict)
-        current_classifications_set = set(current_classifications_list)
+        current_classifications_set = set(current_classifications_list) 
 
     # print out current set of classifications at this stage:
     classifications_string = ",".join(current_classifications_set)
     if give_verbose_output == 'yes':
         print("COMPARED TO TREE: classifications_set=",classifications_string)
 
-    return(current_classifications_set, result)
+    return(current_classifications_set, result)            
 
 #====================================================================#
 
 # define subroutine to read in the file with files of SNPs to use for classifying:
 
-def read_input_snps_to_use_for_classifying(input_snps_to_use_for_classifying_file, input_assembly_file, alleles_found_set, parents_dict, children_dict, output_file, give_verbose_output):
+def read_input_snps_to_use_for_classifying(input_snps_to_use_for_classifying_file, input_assembly_file, alleles_found_set, parents_dict, children_dict, output_file, give_verbose_output, parameter_file_dir):
 
     # make a list to store the classifications for this isolate:
     initial_classifications_for_isolate = list()
-    final_classifications_for_isolate = list()
+    final_classifications_for_isolate = list() 
 
     # read in the input file with files of SNPs:
     fileObj = open(input_snps_to_use_for_classifying_file)
-    data_dir = Path(os.path.dirname(input_snps_to_use_for_classifying_file))
     for line in fileObj:
         # wave1 data_for_FST_statistics_update2_wave1_V2_FST.txt 0.98
         line = line.rstrip()
         temp = line.split()
         clade = temp[0]
-        file_with_snps_for_clade = data_dir / temp[1]
+        file_with_snps_for_clade = temp[1]
+        file_with_snps_for_clade = "%s/%s" % (parameter_file_dir, file_with_snps_for_clade) # files with SNPs for classifying this clade
         fst_cutoff_for_clade = float(temp[2])
         # read in the SNPs to use to classify in this clade:
         initial_classifications_for_isolate = read_input_snps_to_use_for_classifying_clade(file_with_snps_for_clade, clade, initial_classifications_for_isolate, input_assembly_file, alleles_found_set, fst_cutoff_for_clade, give_verbose_output)
@@ -497,7 +494,7 @@ def read_input_snps_to_use_for_classifying(input_snps_to_use_for_classifying_fil
     outputfileObj = open(output_file, "w")
     if result == 'fine':
         # print out the final classifications for this isolate:
-        classifications_string = ",".join(final_classifications_for_isolate)
+        classifications_string = ",".join(final_classifications_for_isolate)             
         format_string = "FINAL RESULT: input_assembly_file %s : classifications_string %s" % (input_assembly_file, classifications_string)
         if give_verbose_output == 'yes':
             print(format_string)
@@ -509,7 +506,7 @@ def read_input_snps_to_use_for_classifying(input_snps_to_use_for_classifying_fil
         # print out the initial classifications for this isolate, and an error message:
         classifications_string = ",".join(initial_classifications_for_isolate)
         format_string = "WARNING UNCLASSIFIABLE: input_assembly_file %s : classifications_string %s" % (input_assembly_file, classifications_string)
-        if give_verbose_output:
+        if give_verbose_output == 'yes':
             print(format_string)
         most_precise_classification = "unclassifiable"
         format_string = "%s %s\n" % (input_assembly_file, most_precise_classification)
@@ -526,26 +523,43 @@ def read_input_snps_to_use_for_classifying(input_snps_to_use_for_classifying_fil
 
 def make_blast_db_and_run_blast(input_assembly_file, snp_wildtype_and_alternative_alleles_plus_flanking_seqs_fasta_file):
 
-
     # make a temporary copy of the input assembly file, so that we can make a blast database for it:
-    tmp_dir = Path(make_filename(os.getcwd()))
-    tmp_fasta = make_filename(tmp_dir)
-    os.mkdir(tmp_dir)
-    shutil.copy(input_assembly_file, tmp_fasta)
-    # cmd0 = "cp %s %s" % (input_assembly_file, tmp_assembly_file)
-    # os.system(cmd0)
+    tmp_assembly_file = make_filename(os.getcwd())
+    cmd0 = "cp %s %s" % (input_assembly_file, tmp_assembly_file) 
+    os.system(cmd0)
 
     # make a blast database for the input assembly file:
-    cmd1 = "makeblastdb -in %s -out %s -input_type fasta -dbtype nucl" % (tmp_fasta, tmp_fasta)
+    cmd1 = "makeblastdb -in %s -input_type fasta -dbtype nucl" % (tmp_assembly_file)
     os.system(cmd1)
 
     # make a temporary file to put the output of blast into:
     tmp_blast_output = make_filename(os.getcwd())
 
     # run blast using the SNP alleles as queries:
-    cmd2 = "blastn -query %s -db %s -task blastn -word_size 20 -outfmt 6 > %s" % (snp_wildtype_and_alternative_alleles_plus_flanking_seqs_fasta_file, tmp_fasta, tmp_blast_output)
-    os.system(cmd2)
-    shutil.rmtree(tmp_dir)
+    cmd2 = "blastn -query %s -db %s -task blastn -word_size 20 -outfmt 6 > %s" % (snp_wildtype_and_alternative_alleles_plus_flanking_seqs_fasta_file, tmp_assembly_file, tmp_blast_output)
+    os.system(cmd2) 
+
+    # delete the temporary local copy of the assembly file:
+    os.unlink(tmp_assembly_file)
+
+    # delete the temporary files made by makeblastdb:
+    # e.g. AUSMDU00028282.fasta.ndb  AUSMDU00028282.fasta.nhr  AUSMDU00028282.fasta.nin  AUSMDU00028282.fasta.njs  AUSMDU00028282.fasta.not  AUSMDU00028282.fasta.nsq  AUSMDU00028282.fasta.ntf  AUSMDU00028282.fasta.nto
+    tempfile1 = "%s.ndb" % (tmp_assembly_file)
+    tempfile2 = "%s.nhr" % (tmp_assembly_file)
+    tempfile3 = "%s.nin" % (tmp_assembly_file)
+    tempfile4 = "%s.njs" % (tmp_assembly_file)
+    tempfile5 = "%s.not" % (tmp_assembly_file)
+    tempfile6 = "%s.nsq" % (tmp_assembly_file)
+    tempfile7 = "%s.ntf" % (tmp_assembly_file)
+    tempfile8 = "%s.nto" % (tmp_assembly_file)
+    os.unlink(tempfile1)
+    os.unlink(tempfile2)
+    os.unlink(tempfile3)
+    os.unlink(tempfile4)
+    os.unlink(tempfile5)
+    os.unlink(tempfile6)
+    os.unlink(tempfile7)
+    os.unlink(tempfile8)
 
     return tmp_blast_output
 
@@ -577,7 +591,7 @@ def read_classification_tree(classification_tree):
              children_dict[parent] = childrenstring
     fileObj.close()
 
-    return(parents_dict, children_dict)
+    return(parents_dict, children_dict) 
 
 #====================================================================#
 # read in the blast output file, to see which alleles were found in the assembly:
@@ -587,7 +601,7 @@ def read_blast_output(tmp_blast_output):
     # make a variable to record which alleles were found:
     alleles_found_set = set()
 
-    fileObj = open(tmp_blast_output)
+    fileObj = open(tmp_blast_output) 
     for line in fileObj:
         # Note: The columns for blast m8 format are:
         # query id, subject id, % identity, alignment length, mismatches, gap opens, q. start, q. end, s. start, s. end, evalue, bit score
@@ -608,38 +622,15 @@ def read_blast_output(tmp_blast_output):
 
 def main():
 
-    # check the command-line arguments:
-    parser = argparse.ArgumentParser(
-        prog="Geno7PET",
-        description="geno7PET: A tool for classifying genotypes."
-    )
-    parser.add_argument(
-        "input_assembly_file",
-        help="input assembly file, e.g. my_fastas/AUSMDU00028282.fasta"
-    )
-    parser.add_argument(
-        "output_file",
-        help="name of the output file, e.g. AUSMDU00028282.fasta.out"
-    )
-    parser.add_argument(
-        "-r",
-        "--resources",
-        help="directory with the parameter files, e.g. -r geno7PET_parameter_files",
-        default=resources.files("geno7pet").joinpath("resources").joinpath("geno7PET_parameter_files")
-    )
-    parser.add_argument(
-        "-v",
-        "--verbose",
-        help="Select verbose output",
-        action="store_true",
-        default=False
-    )
-    args = parser.parse_args()
-
-    input_assembly_file = args.input_assembly_file
-    parameter_file_dir = args.resources
-    output_file = args.output_file
-    give_verbose_output = args.verbose
+    # check the command-line arguments:          
+    if len(sys.argv) != 5 or os.path.exists(sys.argv[1]) == False or os.path.exists(sys.argv[2]) == False: 
+        print("Usage: %s input_assembly_file parameter_file_dir output_file give_verbose_output" % sys.argv[0])
+        sys.exit(1)
+    input_assembly_file = sys.argv[1] # input assembly file, e.g. /lustre/scratch125/pam/teams/team216/lb34/phd_project/chapter1/indonesia_data/assemblies/AUSMDU00028282.fasta
+    parameter_file_dir = sys.argv[2] # directory with the parameter files, e.g. geno7PET_parameter_files
+    output_file = sys.argv[3] # name of the output file, e.g. AUSMDU00028282.fasta.out
+    give_verbose_output = sys.argv[4] # says whether to give verbose output (yes or no)
+    assert(give_verbose_output == 'yes' or give_verbose_output == 'no')
 
     # find the names of the parameter files:
     input_snps_to_use_for_classifying_file = "%s/%s" % (parameter_file_dir, "snps_for_classifying") # input file with the files of SNPs to use for classifying
@@ -649,14 +640,14 @@ def main():
     # read in the input classification tree:
     (parents_dict, children_dict) = read_classification_tree(classification_tree)
 
-    # make a blast database for the input assembly file, and run blast using the SNP alleles as queries:
+    # make a blast database for the input assembly file, and run blast using the SNP alleles as queries:                
     tmp_blast_output = make_blast_db_and_run_blast(input_assembly_file, snp_wildtype_and_alternative_alleles_plus_flanking_seqs_fasta_file)
 
     # read in the blast output file, to see which alleles were found in the assembly:
     alleles_found_set = read_blast_output(tmp_blast_output)
 
     # read in the file with files of SNPs to use for classifying:
-    read_input_snps_to_use_for_classifying(input_snps_to_use_for_classifying_file, input_assembly_file, alleles_found_set, parents_dict, children_dict, output_file, give_verbose_output)
+    read_input_snps_to_use_for_classifying(input_snps_to_use_for_classifying_file, input_assembly_file, alleles_found_set, parents_dict, children_dict, output_file, give_verbose_output, parameter_file_dir) 
 
     # delete the temporary blast output file:
     os.unlink(tmp_blast_output)
